@@ -1,0 +1,21 @@
+
+{
+  "name": "components",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "React components for the Doqrment app",
+  "author": "Henrik",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "vite": "^6.2.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "vite preview"
+  }
+}
