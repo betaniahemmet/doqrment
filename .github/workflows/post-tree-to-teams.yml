@@ -1,0 +1,31 @@
+name: Post directory tree to Teams
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  post-tree:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Run generate_tree.py
+        run: |
+          python scripts/generate_tree.py > tree.txt
+
+      - name: Post to Teams
+        run: |
+          curl -H "Content-Type: application/json" \
+            -d "{\"text\": \"\`\`\`\n$(cat tree.txt)\n\`\`\`\"}" \
+            ${{ secrets.TEAMS_WEBHOOK_URL }}
