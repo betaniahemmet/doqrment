@@ -1,5 +1,4 @@
 ├── .editorconfig
-├── .env(old)
 ├── .env.development
 ├── .env.example
 ├── .env.production
@@ -17,39 +16,42 @@
 │   ├── components
 │   │   ├── index.html
 │   │   ├── main.jsx
-│   │   ├── MoodActivityLog.jsx
 │   │   ├── package-lock.json
 │   │   ├── package.json
+│   │   ├── TrackingLog.jsx
 │   │   ├── ui
 │   │   │   └── button.jsx
 │   │   └── vit.config.js
 │   ├── config.py
-│   ├── init.py
 │   ├── models.py
 │   ├── routes.py
-│   ├── scripts
-│   │   └── generate_tree.py
 │   ├── static
 │   │   ├── css
 │   │   │   └── style.css
 │   │   ├── images
 │   │   └── js
+│   │       ├── admin.js
 │   │       └── index-B05FYvJ5.js
-│   └── templates
-│       ├── index.html
-│       ├── layout.html
-│       └── response.html
+│   ├── templates
+│   │   ├── admin.html
+│   │   ├── index.html
+│   │   ├── layout.html
+│   │   └── response.html
+│   └── utils
+│       ├── __init__.py
+│       └── qr_pdf.py
 ├── inspect_db.py
 ├── LICENSE
-├── mood_tracking.db
 ├── package-lock.json
 ├── requirements.txt
 ├── run.py
 ├── scripts
 │   └── generate_tree.py
 ├── setup_db.py
-└── tests
-    ├── conftest.py
-    ├── test_app.py
-    ├── test_models.py
-    └── test_routes.py
+├── tests
+│   ├── conftest.py
+│   ├── test_app.py
+│   ├── test_models.py
+│   └── test_routes.py
+├── tracking.db
+└── tree.txt
