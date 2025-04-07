@@ -4,6 +4,7 @@ import path from 'path';
 
 export default defineConfig({
   root: __dirname, // ✅ So Vite knows where "project root" is
+  publicDir: 'public', // access to image
   plugins: [react()],
   build: {
   outDir: path.resolve(__dirname, '../../dist'), // ✅ Absolute path = clean
