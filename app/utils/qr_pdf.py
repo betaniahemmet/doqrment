@@ -15,11 +15,10 @@ def generate_qr_pdf(tracking_id, initials, location):
     base_url = Config.BASE_URL  # now pulled from shared config
 
     qr_data = (
-        f"{base_url}/log?"
-        f"tracking_id={tracking_id}&"
-        f"initials={initials}&"
-        f"location={location}"
+        f"{base_url}/log?tracking_id={tracking_id}"
+        f"&initials={initials}&location={location}"
     )
+
     qr = qrcode.make(qr_data)
 
     temp_path = os.path.join("instance", "qr_temp.png")
