@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Button from './ui/button';
-import PageWrapper from './ui/PageWrapper';
+import PageWrapperMobile from './ui/PageWrapperMobile';
 
 
 const TrackingLog = () => {
@@ -8,6 +8,8 @@ const TrackingLog = () => {
   const trackingId = queryParams.get('tracking_id');
   const initials = queryParams.get('initials');
   const location = queryParams.get('location');
+  const [lastSubmitted, setLastSubmitted] = useState(null);
+
 
   const [measurementType, setMeasurementType] = useState('Mood');
   const [minLabel, setMinLabel] = useState('Not Anxious');
@@ -15,6 +17,10 @@ const TrackingLog = () => {
   const [value, setValue] = useState(5);
   const [activities, setActivities] = useState([]);
   const [availableActivities, setAvailableActivities] = useState([]);
+
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
 
   useEffect(() => {
     fetch(`/get-admin-settings?tracking_id=${trackingId}`)
@@ -42,6 +48,14 @@ const TrackingLog = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setSuccessMessage('');
+    setErrorMessage('');
+
+    // Check if last submission was less than 60 seconds ago
+    if (lastSubmitted && Date.now() - lastSubmitted < 60000) {
+      setErrorMessage('Vänta minst en minut mellan loggningar.');
+      return;
+    }
     const logData = {
       tracking_id: trackingId,
       initials,
@@ -57,31 +71,39 @@ const TrackingLog = () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(logData),
     })
-      .then((res) => res.json())
-      .then((data) => console.log('✅ Server response:', data))
-      .catch((err) => console.error('❌ Error submitting log:', err));
+      .then((res) => {
+      if (!res.ok) throw new Error('Servern returnerar ett fel');
+      return res.json();
+    })
+      .then(() => {
+      setSuccessMessage('Loggningen sparades.');
+      setLastSubmitted(Date.now());
+    })
+    .catch(() => {
+      setErrorMessage('Kunde inte kontakta servern');
+    }); 
   };
 
   if (!trackingId || !initials || !location) {
     return (
-       <PageWrapper>
+       <PageWrapperMobile>
           <h1 className="text-2xl font-bold text-red-600 mb-2">Invalid QR Link</h1>
           <p className="text-gray-700 text-sm">
             This link is missing tracking information. Please generate a new QR code.
           </p>
-       </PageWrapper> 
+       </PageWrapperMobile> 
     );
   }
 
   return (
-    <PageWrapper>
+    <PageWrapperMobile>
       <form
         onSubmit={handleSubmit}
         className="relative z-10 w-full bg-white/90 p-6 rounded-lg shadow-md text-lg"
       >
-        <h1 className="text-xl font-bold mb-4">{measurementType} Log</h1>
+        <h1 className="text-xl font-bold mb-4">{measurementType}-Mätning</h1>
         <p className="text-lg text-gray-700 mb-6">
-          Logging for <strong>{initials}</strong> at <strong>{location}</strong>
+          För <strong>{initials}</strong> at <strong>{location}</strong>
         </p>
 
         <div className="mb-6">
@@ -95,7 +117,7 @@ const TrackingLog = () => {
             max="10"
             value={value}
             onChange={handleValueChange}
-            className="w-full h-4"
+            className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer focus:outline-none accent-blue-600"
           />
           <div className="flex justify-between text-lg text-gray-600 mt-2">
             <span>{minLabel}</span>
@@ -105,7 +127,7 @@ const TrackingLog = () => {
 
         {availableActivities.length > 0 && (
           <div className="mb-6">
-            <label className="block text-lg text-gray-800 font-medium mb-2">Activities:</label>
+            <label className="block text-lg text-gray-800 font-medium mb-2">Aktivitet för tillfället:</label>
             <div className="grid grid-cols-1 gap-y-3">
               {availableActivities.map((activity) => (
                 <label key={activity} className="inline-flex items-center">
@@ -123,10 +145,13 @@ const TrackingLog = () => {
         )}
 
         <div className="mt-6">
-          <Button label="Log Entry" type="submit" />
+          {successMessage && <p className="mt-4 text-green-600">{successMessage}</p>}
+          {errorMessage && <p className="mt-4 text-red-600">{errorMessage}</p>}
+
+          <Button label="Spara" type="submit" />
         </div>
       </form>
-    </PageWrapper>
+    </PageWrapperMobile>
   );
   };
 
