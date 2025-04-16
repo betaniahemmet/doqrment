@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PageWrapper = ({ children }) => {
+const PageWrapperDesktop = ({ children }) => {
   return (
     <div className="relative min-h-screen bg-gray-100 px-4 py-6 flex justify-center items-center overflow-hidden">
       {/* Subtle background gradient */}
@@ -14,11 +14,11 @@ const PageWrapper = ({ children }) => {
       />
 
       {/* Main content area */}
-      <div className="relative z-10 w-full max-w-sm">
+      <div className="relative z-10 w-full max-w-xl">
         {children}
       </div>
     </div>
   );
 };
-
-export default PageWrapper;
+  
+export default PageWrapperDesktop;

@@ -4,7 +4,7 @@ import uuid
 from flask import Blueprint, current_app, jsonify, request, send_file
 
 from app import db
-from app.models import TrackingSession
+from app.models import TrackingLog, TrackingSession
 from app.utils.qr_pdf import generate_qr_pdf  # make sure this exists and works
 
 main_bp = Blueprint("main", __name__)
@@ -36,6 +36,24 @@ def admin_page():
                 activities.append(act)
 
         # Create new TrackingSession
+        # Prevent duplicates for same initials + location
+        existing = TrackingSession.query.filter_by(
+            initials=initials, location=location
+        ).first()
+
+        if existing:
+            return (
+                jsonify(
+                    {
+                        "error": (
+                            "En kartläggning för dessa initialer "
+                            "och platsen finns redan."
+                        )
+                    }
+                ),
+                400,
+            )
+
         tracking_id = str(uuid.uuid4())
         session = TrackingSession(
             tracking_id=tracking_id,
@@ -87,8 +105,21 @@ def submit_tracking_log():
     data = request.get_json()
     print("📝 Received tracking log:", data)
 
-    # TODO: Save to database if needed
-    return jsonify({"status": "ok"})
+    session = TrackingSession.query.filter_by(
+        tracking_id=data.get("tracking_id")
+    ).first()
+    if not session:
+        return jsonify({"error": "Tracking session not found"}), 404
+
+    log = TrackingLog(
+        value=data.get("value"),
+        activities=",".join(data.get("activities", [])),
+        session_id=session.id,
+    )
+    db.session.add(log)
+    db.session.commit()
+
+    return jsonify({"status": "ok", "log_id": log.id})
 
 
 @main_bp.route("/get-admin-settings")
@@ -127,4 +158,18 @@ def debug_logs():
     from app.models import TrackingLog
 
     logs = TrackingLog.query.all()
-    return {"count": len(logs), "latest": logs[-1].__dict__ if logs else "no logs yet"}
+    result = {
+        "count": len(logs),
+        "latest": (
+            {
+                "id": logs[-1].id,
+                "value": logs[-1].value,
+                "activities": logs[-1].activities,
+                "timestamp": logs[-1].timestamp.isoformat(),
+                "session_id": logs[-1].session_id,
+            }
+            if logs
+            else "no logs yet"
+        ),
+    }
+    return jsonify(result)
