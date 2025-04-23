@@ -179,3 +179,6 @@ mood_tracking.db
 # Docker (Optional)
 docker-compose.override.yml
 .dockerignore
+.env.development
+.env.production
+.env.testing                
