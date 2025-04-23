@@ -10,7 +10,7 @@ class TrackingSession(db.Model):
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     tracking_id = db.Column(db.String(36), nullable=False, unique=True)
-    measurement_type = db.Column(db.String(100), nullable=False)
+    focus = db.Column(db.String(100), nullable=False)
     min_label = db.Column(db.String(100), nullable=False)
     max_label = db.Column(db.String(100), nullable=False)
     activity_1 = db.Column(db.String(100), nullable=True)
@@ -24,6 +24,9 @@ class TrackingSession(db.Model):
     admin_email = db.Column(db.String(255), nullable=False)
     initials = db.Column(db.String(2), nullable=False)
     location = db.Column(db.String(100), nullable=False)
+    tracking_mode = db.Column(
+        db.String(20), nullable=False, default="scale"
+    )  # or "event"
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     exported = db.Column(db.Boolean, server_default="false", nullable=False)
 

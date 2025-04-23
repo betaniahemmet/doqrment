@@ -10,7 +10,7 @@ with app.app_context():
     for session in sessions:
         print(f"ID: {session.id}")
         print(f"Tracking ID: {session.tracking_id}")
-        print(f"Measurement: {session.measurement_type}")
+        print(f"Focus: {session.focus}")
         print(f"Min Label: {session.min_label}")
         print(f"Max Label: {session.max_label}")
 
