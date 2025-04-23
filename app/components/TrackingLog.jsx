@@ -11,7 +11,8 @@ const TrackingLog = () => {
   const [lastSubmitted, setLastSubmitted] = useState(null);
 
 
-  const [measurementType, setMeasurementType] = useState('Mood');
+  const [focus, setFocus] = useState('Mood');
+  const [trackingMode, setTrackingMode] = useState("scale");
   const [minLabel, setMinLabel] = useState('Not Anxious');
   const [maxLabel, setMaxLabel] = useState('Extremely Anxious');
   const [value, setValue] = useState(5);
@@ -26,10 +27,11 @@ const TrackingLog = () => {
     fetch(`/get-admin-settings?tracking_id=${trackingId}`)
       .then((res) => res.json())
       .then((data) => {
-        setMeasurementType(data.measurement);
+        setFocus(data.focus);
         setMinLabel(data.min_label || 'Not Anxious');
         setMaxLabel(data.max_label || 'Extremely Anxious');
         setAvailableActivities(data.activities.filter((a) => a && a.trim() !== ''));
+        setTrackingMode(data.tracking_mode || "scale");
       })
       .catch((err) => console.error('Error loading admin settings:', err));
   }, [trackingId]);
@@ -56,15 +58,21 @@ const TrackingLog = () => {
       setErrorMessage('Vänta minst en minut mellan loggningar.');
       return;
     }
+
     const logData = {
       tracking_id: trackingId,
       initials,
       location,
-      measurement_type: measurementType,
-      value,
+      focus: focus,
       activities,
       timestamp: new Date().toISOString(),
     };
+
+    if (trackingMode === "scale") {
+      logData.value = value;
+    } else {
+      logData.value = 1; // log event occurrence as +1
+    }
 
     fetch('/log', {
       method: 'POST',
@@ -101,29 +109,32 @@ const TrackingLog = () => {
         onSubmit={handleSubmit}
         className="relative z-10 w-full bg-white/90 p-6 rounded-lg shadow-md text-lg"
       >
-        <h1 className="text-xl font-bold mb-4">{measurementType}-Mätning</h1>
+        <h1 className="text-xl font-bold mb-4">{focus}-Mätning</h1>
         <p className="text-lg text-gray-700 mb-6">
           För <strong>{initials}</strong> at <strong>{location}</strong>
         </p>
 
-        <div className="mb-6">
-          <label htmlFor="slider" className="block text-lg text-gray-800 font-medium mb-2">
-            {measurementType}: {value}
-          </label>
-          <input
-            id="slider"
-            type="range"
-            min="1"
-            max="10"
-            value={value}
-            onChange={handleValueChange}
-            className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer focus:outline-none accent-blue-600"
-          />
-          <div className="flex justify-between text-lg text-gray-600 mt-2">
-            <span>{minLabel}</span>
-            <span>{maxLabel}</span>
+        {trackingMode === 'scale' && (
+          <div className="mb-6">
+            <label htmlFor="slider" className="block text-lg text-gray-800 font-medium mb-2">
+              {focus}: {value}
+            </label>
+            <input
+              id="slider"
+              type="range"
+              min="1"
+              max="10"
+              value={value}
+              onChange={handleValueChange}
+              className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer focus:outline-none accent-blue-600"
+            />
+            <div className="flex justify-between text-lg text-gray-600 mt-2">
+              <span>{minLabel}</span>
+              <span>{maxLabel}</span>
+            </div>
           </div>
-        </div>
+        )}
+
 
         {availableActivities.length > 0 && (
           <div className="mb-6">

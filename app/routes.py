@@ -21,13 +21,16 @@ def serve_spa(path):
 def admin_page():
     if request.method == "POST":
         # Parse form data
-        measurement_type = request.form.get("measurement_type")
+        focus = request.form.get("focus")
         min_label = request.form.get("min_label")
         max_label = request.form.get("max_label")
         initials = request.form.get("initials")
         location = request.form.get("location")
         duration = request.form.get("duration")
         admin_email = request.form.get("admin_email")
+        tracking_mode = request.form.get(
+            "tracking_mode", "scale"
+        )  # fallback to 'scale'
 
         activities = []
         for i in range(1, 8):
@@ -57,13 +60,14 @@ def admin_page():
         tracking_id = str(uuid.uuid4())
         session = TrackingSession(
             tracking_id=tracking_id,
-            measurement_type=measurement_type,
+            focus=focus,
             min_label=min_label,
             max_label=max_label,
             initials=initials,
             location=location,
             duration=duration,
             admin_email=admin_email,
+            tracking_mode=tracking_mode,
             activity_1=request.form.get("activity_1"),
             activity_2=request.form.get("activity_2"),
             activity_3=request.form.get("activity_3"),
@@ -145,10 +149,11 @@ def get_admin_settings():
 
     return jsonify(
         {
-            "measurement": session.measurement_type,
+            "focus": session.focus,
             "min_label": session.min_label,
             "max_label": session.max_label,
             "activities": activities,
+            "tracking_mode": session.tracking_mode,
         }
     )
 

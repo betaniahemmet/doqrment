@@ -5,10 +5,11 @@ import PageWrapperDesktop from './ui/PageWrapperDesktop'; //Because intended for
 
 const AdminPage = () => {
   
+  const [trackingMode, setTrackingMode] = useState("scale"); // or "event"
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState({
-    measurement_type: '',
+    focus: '',
     min_label: '',
     max_label: '',
     activities: ['', '', '', '', '', ''],
@@ -48,12 +49,12 @@ const AdminPage = () => {
     setErrorMessage('');
 
     // Required field validation
-    if (!formData.measurement_type.trim()) {
+    if (!formData.focus.trim()) {
       setErrorMessage("Fältet 'Vad mäts' måste fyllas i.");
       return;
     }
 
-    if (!formData.min_label.trim() || !formData.max_label.trim()) {
+    if (trackingMode === 'scale' && (!formData.min_label.trim() || !formData.max_label.trim())) {
       setErrorMessage("Min och max etikett måste fyllas i.");
       return;
     }
@@ -99,6 +100,8 @@ const AdminPage = () => {
       }
     });
 
+    form.append("tracking_mode", trackingMode);
+
     for (let pair of form.entries()) {
       console.log(`${pair[0]}: ${pair[1]}`);
     }
@@ -131,7 +134,7 @@ const AdminPage = () => {
 
       setSuccessMessage('QR-koden har skapats och laddats ner.');
       setFormData({
-      measurement_type: '',
+      focus: '',
       min_label: '',
       max_label: '',
       activities: ['', '', '', '', '', ''],
@@ -152,13 +155,42 @@ const AdminPage = () => {
       <form onSubmit={handleSubmit} className="bg-white/90 w-full max-w-5xl mx-auto shadow-md rounded-lg p-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Skapa QR för kartläggning</h1>
 
+        <div className="mb-4">
+          {trackingMode === 'scale' ? (
+            <p className="text-sm text-gray-600 mb-1">Skala: Loggar ett värde mellan 1–10</p>
+          ) : (
+            <p className="text-sm text-gray-600 mb-1">Händelse: Loggar om något har inträffat</p>
+          )}
+          <div
+            className="inline-flex items-center cursor-pointer bg-gray-200 rounded-full p-1 w-56"
+            onClick={() => setTrackingMode(trackingMode === 'scale' ? 'event' : 'scale')}
+          >
+            <div
+              className={`w-1/2 text-center py-1 rounded-full transition-all ${
+                trackingMode === 'scale' ? 'bg-blue-500 text-white' : ''
+              }`}
+            >
+              Skala
+            </div>
+            <div
+              className={`w-1/2 text-center py-1 rounded-full transition-all ${
+                trackingMode === 'event' ? 'bg-blue-500 text-white' : ''
+              }`}
+            >
+              Händelse
+            </div>
+          </div>
+        </div>
+
+
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block font-medium mb-1">Vad ska mätas?:</label>
             <input
               type="text"
-              name="measurement_type"
-              value={formData.measurement_type}
+              name="focus"
+              value={formData.focus}
               onChange={handleChange}
               placeholder="Ex: Trötthet"
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"
@@ -187,6 +219,7 @@ const AdminPage = () => {
               name="min_label"
               value={formData.min_label}
               onChange={handleChange}
+              disabled={trackingMode === 'event'}
               placeholder="Ex: Trött"
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"
             />
@@ -198,6 +231,7 @@ const AdminPage = () => {
               name="max_label"
               value={formData.max_label}
               onChange={handleChange}
+              disabled={trackingMode === 'event'}
               placeholder="Ex: Pigg"
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"
             />
