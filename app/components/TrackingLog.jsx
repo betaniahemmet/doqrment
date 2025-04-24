@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Button from './ui/button';
-import PageWrapperMobile from './ui/PageWrapperMobile';
+import { Button, Label, Checkbox, Slider, PageWrapperMobile } from './ui';
 
 
 const TrackingLog = () => {
@@ -95,8 +94,8 @@ const TrackingLog = () => {
   if (!trackingId || !initials || !location) {
     return (
        <PageWrapperMobile>
-          <h1 className="text-2xl font-bold text-red-600 mb-2">Invalid QR Link</h1>
-          <p className="text-gray-700 text-sm">
+          <h1 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">Invalid QR Link</h1>
+          <p className="text-gray-700 dark:text-gray-300 text-sm">
             This link is missing tracking information. Please generate a new QR code.
           </p>
        </PageWrapperMobile> 
@@ -107,57 +106,44 @@ const TrackingLog = () => {
     <PageWrapperMobile>
       <form
         onSubmit={handleSubmit}
-        className="relative z-10 w-full bg-white/90 p-6 rounded-lg shadow-md text-lg"
+        className="relative z-10 w-full bg-white/80 dark:bg-gray-800/80 p-6 rounded-lg shadow-md text-lg"
       >
-        <h1 className="text-xl font-bold mb-4">{focus}-Mätning</h1>
-        <p className="text-lg text-gray-700 mb-6">
+        <h1 className="text-xl text-black dark:text-gray-100 font-bold mb-4">Mätning av {focus}</h1>
+        <p className="text-lg text-gray-700 dark:text-gray-200 mb-6">
           För <strong>{initials}</strong> at <strong>{location}</strong>
         </p>
 
         {trackingMode === 'scale' && (
-          <div className="mb-6">
-            <label htmlFor="slider" className="block text-lg text-gray-800 font-medium mb-2">
-              {focus}: {value}
-            </label>
-            <input
-              id="slider"
-              type="range"
-              min="1"
-              max="10"
-              value={value}
-              onChange={handleValueChange}
-              className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer focus:outline-none accent-blue-600"
-            />
-            <div className="flex justify-between text-lg text-gray-600 mt-2">
-              <span>{minLabel}</span>
-              <span>{maxLabel}</span>
-            </div>
-          </div>
+          <Slider
+            name="slider"
+            value={value}
+            onChange={handleValueChange}
+            minLabel={minLabel}
+            maxLabel={maxLabel}
+            focus={focus}
+          />
         )}
 
 
         {availableActivities.length > 0 && (
           <div className="mb-6">
-            <label className="block text-lg text-gray-800 font-medium mb-2">Aktivitet för tillfället:</label>
+            <Label className="text-lg font-medium mb-2">Aktivitet vid tillfället:</Label>
             <div className="grid grid-cols-1 gap-y-3">
               {availableActivities.map((activity) => (
-                <label key={activity} className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={activities.includes(activity)}
-                    onChange={() => toggleActivity(activity)}
-                    className="mr-3 h-5 w-5"
-                  />
-                  <span className="text-lg">{activity}</span>
-                </label>
+                <Checkbox
+                  key={activity}
+                  label={activity}
+                  checked={activities.includes(activity)}
+                  onChange={() => toggleActivity(activity)}
+                />
               ))}
             </div>
           </div>
         )}
 
         <div className="mt-6">
-          {successMessage && <p className="mt-4 text-green-600">{successMessage}</p>}
-          {errorMessage && <p className="mt-4 text-red-600">{errorMessage}</p>}
+          {successMessage && <p className="mt-4 text-green-600 dark:text-green-200">{successMessage}</p>}
+          {errorMessage && <p className="mt-4 text-red-600 dark:text-red-200">{errorMessage}</p>}
 
           <Button label="Spara" type="submit" />
         </div>

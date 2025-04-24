@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import Button from './ui/button';
+import Button from './ui/Button';
+import Input from './ui/Input'
+import Select from './ui/Select';
+import Label from './ui/Label';
 import PageWrapperDesktop from './ui/PageWrapperDesktop'; //Because intended for desktop
 
 
@@ -152,29 +155,33 @@ const AdminPage = () => {
 
   return (
     <PageWrapperDesktop>
-      <form onSubmit={handleSubmit} className="bg-white/90 w-full max-w-5xl mx-auto shadow-md rounded-lg p-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Skapa QR för kartläggning</h1>
+      <form onSubmit={handleSubmit} className="bg-white/90 dark:bg-gray-800/80 w-full max-w-5xl mx-auto shadow-md rounded-lg p-6">
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-6">Skapa QR för kartläggning</h1>
 
         <div className="mb-4">
           {trackingMode === 'scale' ? (
-            <p className="text-sm text-gray-600 mb-1">Skala: Loggar ett värde mellan 1–10</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">Skala: Loggar ett värde mellan 1–10</p>
           ) : (
-            <p className="text-sm text-gray-600 mb-1">Händelse: Loggar om något har inträffat</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">Händelse: Loggar om något har inträffat</p>
           )}
           <div
-            className="inline-flex items-center cursor-pointer bg-gray-200 rounded-full p-1 w-56"
+            className="inline-flex items-center cursor-pointer bg-gray-200 dark:bg-gray-700 rounded-full p-1 w-56 transition-all hover:ring-2 hover:ring-blue-400 dark:hover:ring-blue-500"
             onClick={() => setTrackingMode(trackingMode === 'scale' ? 'event' : 'scale')}
           >
             <div
               className={`w-1/2 text-center py-1 rounded-full transition-all ${
-                trackingMode === 'scale' ? 'bg-blue-500 text-white' : ''
+                trackingMode === 'scale'
+                  ? 'bg-blue-500 text-white'
+                  : 'text-gray-800 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
               }`}
             >
               Skala
             </div>
             <div
               className={`w-1/2 text-center py-1 rounded-full transition-all ${
-                trackingMode === 'event' ? 'bg-blue-500 text-white' : ''
+                trackingMode === 'event'
+                  ? 'bg-blue-500 text-white'
+                  : 'text-gray-800 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
               }`}
             >
               Händelse
@@ -183,72 +190,66 @@ const AdminPage = () => {
         </div>
 
 
-
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block font-medium mb-1">Vad ska mätas?:</label>
-            <input
+            <Label htmlFor="focus">Vad ska mätas?</Label>
+            <Input
               type="text"
               name="focus"
               value={formData.focus}
               onChange={handleChange}
               placeholder="Ex: Trötthet"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"
             />
           </div>
           <div>
-            <label className="block font-medium mb-1">Initialer:</label>
-            <input
+            <Label htmlFor="initials">Initialer:</Label>
+            <Input
               type="text"
               name="initials"
               maxLength={2}
               value={formData.initials}
               onChange={handleChange}
               placeholder="Ex: AB"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"
             />
           </div>
         </div>
 
-        {/* Min/Max Labels */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block font-medium mb-1">Minsta-Läge:</label>
-            <input
-              type="text"
-              name="min_label"
-              value={formData.min_label}
-              onChange={handleChange}
-              disabled={trackingMode === 'event'}
-              placeholder="Ex: Trött"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"
-            />
+        {trackingMode === 'scale' && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="min_label">Minsta-Läge:</Label>
+              <Input
+                type="text"
+                name="min_label"
+                value={formData.min_label}
+                onChange={handleChange}
+                placeholder="Ex: Trött"
+              />
+            </div>
+            <div>
+              <Label htmlFor="max_label">Mesta-Läge:</Label>
+              <Input
+                type="text"
+                name="max_label"
+                value={formData.max_label}
+                onChange={handleChange}
+                placeholder="Ex: Pigg"
+              />
+            </div>
           </div>
-          <div>
-            <label className="block font-medium mb-1">Mesta-Läge:</label>
-            <input
-              type="text"
-              name="max_label"
-              value={formData.max_label}
-              onChange={handleChange}
-              disabled={trackingMode === 'event'}
-              placeholder="Ex: Pigg"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"
-            />
-          </div>
-        </div>
+        )}
+
 
         {/* Activities */}
         <div>
-          <label className="block font-medium mb-1">Aktiviteter (Max 6st):</label>
+          <Label>Aktiviteter (Max 6st):</Label>
           <div className="grid grid-cols-2 gap-2">
             {formData.activities.map((act, i) => (
-              <input
+              <Input
                 key={i}
                 type="text"
                 value={act}
                 onChange={(e) => handleActivityChange(i, e.target.value)}
-                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"
               />
             ))}
           </div>
@@ -257,49 +258,46 @@ const AdminPage = () => {
         {/* Location + Duration */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block font-medium mb-1">Verksamhet:</label>
-            <select
+            <Label htmlFor="location">Verksamhet:</Label>
+            <Select
               name="location"
               value={formData.location}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"
             >
               <option value="">Välj plats</option> {/* <-- Empty string = placeholder */}
               <option value="Verkstan">Verkstan</option>
               <option value="Kusten">Kusten</option>
               <option value="Konferensen">Konferensen</option>
-            </select>
+            </Select>
           </div>
 
           <div>
-            <label className="block font-medium mb-1">Mätperiod:</label>
-            <select
+            <Label htmlFor="duration">Mätperiod:</Label>
+            <Select
               name="duration"
               value={formData.duration}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"
             >
               <option value="">Välj period</option> {/* <-- Empty string = placeholder */}
               <option value="week">En vecka</option>
               <option value="month">En månad</option>
-            </select>
+            </Select>
           </div>
         </div>
 
         {/* Email full width */}
         <div className="mb-6">
-          <label className="block font-medium mb-1">Email:</label>
-          <input
+          <label className="block font-medium mb-1 text-gray-800 dark:text-gray-200">Email:</label>
+          <Input
             type="email"
             name="admin_email"
             value={formData.admin_email}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"
           />
         </div>
 
-        {successMessage && <p className="mt-4 text-green-600">{successMessage}</p>}
-        {errorMessage && <p className="mt-4 text-red-600">{errorMessage}</p>}
+        {successMessage && <p className="mt-4 text-green-600 dark:text-green-200">{successMessage}</p>}
+        {errorMessage && <p className="mt-4 text-red-600 dark:text-red-200">{errorMessage}</p>}
 
         <Button label="Generate QR Code" type="submit" />
       </form>
