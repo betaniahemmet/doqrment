@@ -2,9 +2,9 @@ import React from 'react';
 
 const PageWrapperMobile = ({ children }) => {
   return (
-    <div className="relative min-h-screen bg-gray-100 px-4 py-6 flex justify-center items-center overflow-hidden">
+    <div className="relative min-h-screen bg-gray-100 dark:bg-gray-900 px-4 py-6 flex justify-center items-center overflow-hidden">
       {/* Subtle background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-200 opacity-40 z-0" />
+      <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-200 dark:from-gray-900 dark:to-gray-700 opacity-40 z-0" />
 
       {/* Blurred logo watermark */}
       <img
