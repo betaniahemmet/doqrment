@@ -5,36 +5,57 @@ from fpdf import FPDF
 
 from app.config import Config
 
-assert Config.BASE_URL, "❌ BASE_URL is not set. Check your .env file."
 
-
-def generate_qr_pdf(tracking_id, initials, location):
-
+def generate_qr_pdf(
+    tracking_id, initials, location, save_to_file=False, filename="instance/label.pdf"
+):
+    # Ensure the instance folder exists
     os.makedirs("instance", exist_ok=True)
 
-    base_url = Config.BASE_URL  # now pulled from shared config
-
+    # Prepare QR code data
+    base_url = Config.BASE_URL
     qr_data = (
-        f"{base_url}/log?tracking_id={tracking_id}"
-        f"&initials={initials}&location={location}"
+        f"{base_url}/log?"
+        f"tracking_id={tracking_id}&initials={initials}&location={location}"
     )
 
-    qr = qrcode.make(qr_data)
-
+    # Create and save QR code temporarily
     temp_path = os.path.join("instance", "qr_temp.png")
-    qr.save(temp_path)
+    try:
+        qr = qrcode.make(qr_data)
+        qr.save(temp_path)
 
-    pdf = FPDF("P", "mm", "A4")
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.image(temp_path, x=60, y=40, w=90)
+        # Generate PDF
+        pdf = FPDF("P", "mm", "A4")
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
 
-    pdf.set_y(140)
-    pdf.cell(0, 10, f"Tracking for: {initials} at {location}", ln=True, align="C")
-    pdf.set_font("Arial", size=10)
-    pdf.cell(0, 10, "Discard this QR if information is outdated", ln=True, align="C")
+        # Positioning
+        qr_x, qr_y, qr_w = 60, 40, 90
+        text_y = 140
 
-    pdf_bytes = pdf.output(dest="S").encode("latin1")
-    os.remove(temp_path)
+        # Add QR image
+        pdf.image(temp_path, x=qr_x, y=qr_y, w=qr_w)
 
-    return pdf_bytes
+        # Add text
+        pdf.set_y(text_y)
+        pdf.cell(0, 10, f"Tracking for: {initials} at {location}", ln=True, align="C")
+        pdf.set_font("Arial", size=10)
+        pdf.cell(
+            0, 10, "Discard this QR if information is outdated", ln=True, align="C"
+        )
+
+        # Output PDF
+        output = pdf.output(dest="S")
+        if save_to_file:
+            pdf.output(name=filename)
+            return None
+        return output.encode("latin1") if isinstance(output, str) else bytes(output)
+
+    except Exception as e:
+        print(f"[QR PDF ERROR] Failed to generate PDF: {e}")
+        raise
+
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)

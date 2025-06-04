@@ -158,6 +158,65 @@ def get_admin_settings():
     )
 
 
+@main_bp.route("/list-previous-sessions")
+def list_previous_sessions():
+    initials = request.args.get("initials")
+    location = request.args.get("location")
+
+    if not initials or not location:
+        return jsonify([])
+
+    sessions = (
+        TrackingSession.query.filter_by(initials=initials, location=location)
+        .order_by(TrackingSession.created_at.desc())
+        .limit(10)
+        .all()
+    )
+
+    result = [
+        {
+            "tracking_id": s.tracking_id,
+            "focus": s.focus,
+            "created_at": s.created_at.strftime("%Y-%m-%d"),
+        }
+        for s in sessions
+    ]
+
+    return jsonify(result)
+
+
+@main_bp.route("/load-previous-session")
+def load_previous_session():
+    tracking_id = request.args.get("tracking_id")
+    if not tracking_id:
+        return jsonify({"error": "Missing tracking ID"}), 400
+
+    s = TrackingSession.query.filter_by(tracking_id=tracking_id).first()
+    if not s:
+        return jsonify(None)
+
+    activities = [
+        s.activity_1,
+        s.activity_2,
+        s.activity_3,
+        s.activity_4,
+        s.activity_5,
+        s.activity_6,
+        s.activity_7,
+    ]
+    activities = [a for a in activities if a]
+
+    return jsonify(
+        {
+            "focus": s.focus,
+            "min_label": s.min_label,
+            "max_label": s.max_label,
+            "activities": activities,
+            "tracking_mode": s.tracking_mode,
+        }
+    )
+
+
 @main_bp.route("/debug-logs")
 def debug_logs():
     from app.models import TrackingLog

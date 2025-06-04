@@ -31,6 +31,9 @@ class TrackingSession(db.Model):
     exported = db.Column(db.Boolean, server_default="false", nullable=False)
 
     logs = db.relationship("TrackingLog", backref="session", lazy=True)
+    parent_id = db.Column(
+        db.String(36), db.ForeignKey("tracking_sessions.tracking_id"), nullable=True
+    )
 
 
 class TrackingLog(db.Model):
