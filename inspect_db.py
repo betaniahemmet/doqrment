@@ -1,28 +1,22 @@
 from app import create_app
-from app.models import TrackingSession
+from app.models import TrackingLog, TrackingSession
 
 app = create_app()
+app.app_context().push()
 
-with app.app_context():
-    sessions = TrackingSession.query.all()
+sessions = TrackingSession.query.all()
+print(f"📊 {len(sessions)} sessions found.")
+for s in sessions:
+    print(
+        f"Session {s.tracking_id[:8]} | Skapad: {s.created_at.date()} | Exported: {s.exported} | Duration: {s.duration}"
+    )
 
-    print("=== All Tracking Sessions ===")
-    for session in sessions:
-        print(f"ID: {session.id}")
-        print(f"Tracking ID: {session.tracking_id}")
-        print(f"Focus: {session.focus}")
-        print(f"Min Label: {session.min_label}")
-        print(f"Max Label: {session.max_label}")
-
-        activities = [
-            session.activity_1,
-            session.activity_2,
-            session.activity_3,
-            session.activity_4,
-            session.activity_5,
-            session.activity_6,
-            session.activity_7,
-        ]
-        activities = [a for a in activities if a]
-        print(f"Activities: {', '.join(activities)}")
-        print("-" * 40)
+    logs = (
+        TrackingLog.query.filter_by(session_id=s.id)
+        .order_by(TrackingLog.timestamp)
+        .all()
+    )
+    print(f" - {len(logs)} logs")
+    if logs:
+        print(f"   First log: {logs[0].timestamp}")
+        print(f"   Last  log: {logs[-1].timestamp}")

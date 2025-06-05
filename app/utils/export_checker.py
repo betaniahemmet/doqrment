@@ -37,4 +37,8 @@ def get_sessions_ready_for_export():
         if is_child or not has_children:
             results.append(session)
 
+    print(f"Found {len(results)} sessions ready for export:")
+    for s in results:
+        print(f" - {s.tracking_id} ({s.created_at.date()}, exported={s.exported})")
+
     return results

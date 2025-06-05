@@ -28,7 +28,7 @@ class TrackingSession(db.Model):
         db.String(20), nullable=False, default="scale"
     )  # or "event"
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    exported = db.Column(db.Boolean, server_default="false", nullable=False)
+    exported = db.Column(db.Boolean, server_default="False", nullable=False)
 
     logs = db.relationship("TrackingLog", backref="session", lazy=True)
     parent_id = db.Column(

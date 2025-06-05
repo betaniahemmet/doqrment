@@ -119,7 +119,7 @@ const AdminPage = () => {
       if (errorText.includes("finns redan")) {
         setErrorMessage("En kartläggning för dessa initialer och platsen finns redan.");
       } else {
-        setErrorMessage("Serverfel – kunde inte skapa QR-kod.");
+        setErrorMessage("Serverfel - kunde inte skapa QR-kod.");
       }
       return;
     }
@@ -188,7 +188,7 @@ const AdminPage = () => {
         <div className="mb-6">
           {trackingMode === 'scale' ? (
             <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-              Skala: Loggar ett värde mellan 1–10
+              Skala: Loggar ett värde mellan 1-10
             </p>
           ) : (
             <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">
@@ -271,7 +271,7 @@ const AdminPage = () => {
               <option value="">Välj en tidigare mätning</option>
               {previousSessions.map((s) => (
                 <option key={s.tracking_id} value={s.tracking_id}>
-                  {s.created_at} – {s.focus}
+                  {s.created_at} - {s.focus}
                 </option>
               ))}
             </Select>
