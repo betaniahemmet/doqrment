@@ -1,5 +1,6 @@
 import io
 import uuid
+from datetime import datetime
 
 from flask import Blueprint, current_app, jsonify, request, send_file
 
@@ -40,9 +41,11 @@ def admin_page():
 
         # Create new TrackingSession
         # Prevent duplicates for same initials + location
-        existing = TrackingSession.query.filter_by(
-            initials=initials, location=location
-        ).first()
+        existing = (
+            TrackingSession.query.filter_by(initials=initials, location=location)
+            .filter(TrackingSession.end_date >= datetime.utcnow())
+            .first()
+        )
 
         if existing:
             return (
