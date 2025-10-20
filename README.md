@@ -1,84 +1,65 @@
-# Doqrment – Tracking System for Care Environments
+# Doqrment
 
-**Doqrment** is a lightweight, mobile-first system for tracking subjective observations (e.g., mood, energy, behavior) in care settings like LSS group homes or daily activity centers. Built with Flask, React, and SQLite, it enables structured data collection and automated reporting.
+*English summary below*
 
-## Features
+Ett lättviktigt, mobilförst system för att logga subjektiva observationer (t.ex. humör, energi, beteenden) i LSS‑boenden och daglig verksamhet. Byggt med Flask, React och SQLite.
 
-- 📱 Mobile-friendly logging UI via QR code  
-- 🛠️ Admin interface for setting up tracking sessions  
-- 🗃️ Data stored in SQLite with simple export options  
-- 🗓️ Weekly or monthly durations  
-- 📈 Auto-generated visualizations (line charts, boxplots, event markers)  
-- 📤 Optional report emailing (beta)
+## Funktioner
+- Mobilvänlig loggning via QR‑koder
+- Adminvy för att skapa mätningar (vecka/månad)
+- Lagring i SQLite med enkel export
+- Rapporter och diagram
+- (Beta) Automatisk e‑post av rapporter
 
-## Tech Stack
+## Kom igång
 
-- **Backend**: Flask + SQLAlchemy  
-- **Frontend**: React + Tailwind CSS (via Vite)  
-- **Database**: SQLite  
-- **QR Codes**: `fpdf`, `qrcode`  
-- **Charts**: Matplotlib, Seaborn  
-- **Deployment**: Docker-ready
-
-## Project Structure
-
-- `app/`  
-  - `components/` – React frontend components  
-  - `static/` – Build output from Vite  
-  - `templates/` – HTML files  
-  - `utils/qr_pdf.py` – QR code + PDF generation  
-  - `models.py` – SQLAlchemy models  
-  - `routes.py` – Flask routes  
-- `instance/doqrment.sqlite` – SQLite database (auto-created)
-
-## Setup Instructions
-
-### 1. Clone the Repo
-
-```
-git clone https://github.com/your-org/doqrment.git
+```bash
+# 1) Klona
+git clone https://github.com/betaniahemmet/doqrment.git
 cd doqrment
-```
 
-### 2. Backend Setup (Flask)
-
-```
+# 2) Backend (Flask)
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate      # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-```
 
-### 3. Initialize Database
-
-```
+# 3) Initiera databas
 python setup_db.py
-```
 
-(This will create the `doqrment.sqlite` file in the `instance/` folder.)
+# 4) Frontend (React)
+npm install --prefix app/components
+npm run build --prefix app/components   # output -> app/static/
 
-### 4. Frontend Setup (React)
-
-```
-cd app/components/
-npm install
-npm run build
-```
-
-(This builds the frontend and outputs to `../static/`.)
-
-### 5. Run Development Server
-
-```
-cd ../..
+# 5) Starta
 flask run
+# Öppna: http://localhost:5000
 ```
 
-Access the app at: [http://localhost:5000](http://localhost:5000)
+> Tips: Använd en `.env` för miljövariabler (t.ex. `FLASK_ENV=development`).
 
-## Docker (Optional)
+## Stack / Arkitektur
+- **Backend:** Flask + SQLAlchemy
+- **Frontend:** React + Tailwind (Vite)
+- **Databas:** SQLite
+- **QR/PDF:** fpdf, qrcode
+- **Drift:** Lokalt eller via Docker (valfritt)
 
-_Coming soon – Dockerfile present but not fully configured yet._
+## Status
+Aktiv utveckling
 
 ## License
+Detta projekt är licensierat under **MIT** – se den org‑gemensamma licensen:
+https://github.com/betaniahemmet/.github/blob/main/LICENSE
 
-MIT
+## Kontakt
+Öppna ett issue eller mejla: henrik.bjorserud@betaniahemmet.se
+
+---
+
+## English Summary
+
+Doqrment is a mobile‑first logging system for subjective observations (e.g., mood, energy, behaviors) in care settings (LSS/day activity centers). Built with Flask, React, and SQLite.
+
+**Key features:** QR‑based logging, admin view to create sessions (week/month), SQLite storage, basic charts/reports, optional email reports.
+
+**Quick start:** See the Swedish section above for step‑by‑step setup.
