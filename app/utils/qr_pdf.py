@@ -1,4 +1,4 @@
-import os
+import io
 
 import qrcode
 from fpdf import FPDF
@@ -7,55 +7,64 @@ from app.config import Config
 
 
 def generate_qr_pdf(
-    tracking_id, initials, location, save_to_file=False, filename="instance/label.pdf"
+    tracking_id: str,
+    initials: str,
+    location: str,
+    filename: str = "instance/label.pdf",
+    save_to_file: bool = False,
 ):
-    # Ensure the instance folder exists
-    os.makedirs("instance", exist_ok=True)
+    """Generate a QR code label PDF (fpdf2, in-memory, type-clean)."""
 
-    # Prepare QR code data
-    base_url = Config.BASE_URL
-    qr_data = (
-        f"{base_url}/log?"
-        f"tracking_id={tracking_id}&initials={initials}&location={location}"
-    )
+    base_url = Config.BASE_URL or "http://localhost:5000"
+    if not Config.BASE_URL:
+        print("⚠️  BASE_URL missing — using http://localhost:5000")
 
-    # Create and save QR code temporarily
-    temp_path = os.path.join("instance", "qr_temp.png")
+    qr_data = f"{base_url}/log?tracking_id={tracking_id}&initials={initials}&location={location}"
+    print(f"🧾 Generating QR for: {qr_data}")
+
     try:
-        qr = qrcode.make(qr_data)
-        qr.save(temp_path)
+        # Create QR image directly into memory
+        qr_img = qrcode.make(qr_data)
+        qr_buffer = io.BytesIO()
+        qr_img.save(qr_buffer, "PNG")  # ✅ correct form
+        qr_buffer.seek(0)
 
-        # Generate PDF
+        # Build PDF
         pdf = FPDF("P", "mm", "A4")
         pdf.add_page()
-        pdf.set_font("Arial", size=12)
+        pdf.set_font("Helvetica", size=12)
 
-        # Positioning
         qr_x, qr_y, qr_w = 60, 40, 90
         text_y = 140
 
-        # Add QR image
-        pdf.image(temp_path, x=qr_x, y=qr_y, w=qr_w)
+        # ✅ Insert in-memory image
+        pdf.image(qr_buffer, x=qr_x, y=qr_y, w=qr_w)
 
-        # Add text
         pdf.set_y(text_y)
         pdf.cell(0, 10, f"Tracking for: {initials} at {location}", ln=True, align="C")
-        pdf.set_font("Arial", size=10)
+        pdf.set_font("Helvetica", size=10)
         pdf.cell(
             0, 10, "Discard this QR if information is outdated", ln=True, align="C"
         )
 
-        # Output PDF
-        output = pdf.output(dest="S")
+        # ✅ output(dest="S") returns a bytearray — no encode() needed
+        raw_bytes = pdf.output(dest="S")
+        pdf_bytes = io.BytesIO(bytes(raw_bytes))
+        pdf_bytes.seek(0)
+
         if save_to_file:
-            pdf.output(name=filename)
+            pdf.output(filename)
+            print(f"✅ PDF saved to: {filename}")
             return None
-        return output.encode("latin1") if isinstance(output, str) else bytes(output)
+
+        return pdf_bytes
 
     except Exception as e:
         print(f"[QR PDF ERROR] Failed to generate PDF: {e}")
         raise
 
-    finally:
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
+
+if __name__ == "__main__":
+    print("🧪 Running standalone QR PDF test...")
+    pdf = generate_qr_pdf("test123", "AB", "Verkstan", save_to_file=True)
+    print("✅ Done! Check instance/label.pdf")

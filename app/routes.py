@@ -1,6 +1,5 @@
-import io
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from flask import Blueprint, current_app, jsonify, request, send_file
 
@@ -43,7 +42,7 @@ def admin_page():
         # Prevent duplicates for same initials + location
         existing = (
             TrackingSession.query.filter_by(initials=initials, location=location)
-            .filter(TrackingSession.end_date >= datetime.utcnow())
+            .filter(TrackingSession.end_date >= datetime.now(timezone.utc))
             .first()
         )
 
@@ -60,6 +59,9 @@ def admin_page():
                 400,
             )
 
+        duration_days = 7 if duration.lower() == "week" else 30
+        end_date = datetime.now(timezone.utc) + timedelta(days=duration_days)
+
         tracking_id = str(uuid.uuid4())
         session = TrackingSession(
             tracking_id=tracking_id,
@@ -69,6 +71,7 @@ def admin_page():
             initials=initials,
             location=location,
             duration=duration,
+            end_date=end_date,
             admin_email=admin_email,
             tracking_mode=tracking_mode,
             activity_1=request.form.get("activity_1"),
@@ -80,14 +83,15 @@ def admin_page():
             activity_7=request.form.get("activity_7"),
         )
         db.session.add(session)
-        db.session.commit()
 
         # Generate QR PDF
         pdf_bytes = generate_qr_pdf(tracking_id, initials, location)
 
+        db.session.commit()
+
         # Return PDF
         return send_file(
-            io.BytesIO(pdf_bytes),
+            pdf_bytes,
             mimetype="application/pdf",
             as_attachment=True,
             download_name=f"{initials}_{location}_QR.pdf",
